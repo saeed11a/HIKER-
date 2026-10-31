@@ -1,0 +1,43 @@
+# Electron packaging config for the HIKER+ desktop build.
+#
+# Consumed by .github/workflows/windows-exe.yml step 8:
+#   npx electron-builder --config electron-builder.yml --win nsis --x64 --publish never
+# The workflow installs electron + electron-builder itself (step 5, `--no-save`),
+# so they are deliberately not in package.json.
+
+appId: com.hiker.factoryerp
+productName: HIKER Factory ERP
+copyright: Copyright © HIKER+ Shoes Factory
+
+directories:
+  # `build/` already holds icon.png (512×512 HIKER+ mark) — electron-builder
+  # converts it into the Windows .ico and the installer artwork.
+  buildResources: build
+  output: release
+
+files:
+  # The renderer is a finished Vite bundle and electron/main.cjs only uses
+  # Electron + Node built-ins, so no npm package has to be shipped inside the
+  # installer — this keeps the ~10 MB app from dragging the whole dependency tree.
+  - dist/**/*
+  - electron/**/*
+  - package.json
+  - "!node_modules/**/*"
+
+asar: true
+npmRebuild: false
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  artifactName: HIKER-Factory-ERP-${version}-setup.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: HIKER Factory ERP
